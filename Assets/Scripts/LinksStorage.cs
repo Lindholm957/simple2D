@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Cysharp.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System;
 
 public class LinksStorage
 {
@@ -24,10 +25,15 @@ public class LinksStorage
 
         var matches = Regex.Matches(html, @"href=""([^""]+\.(jpg|png))""");
 
+        Uri baseUri = new Uri(BaseUrl);
+
         foreach (Match match in matches)
         {
             string file = match.Groups[1].Value;
-            Urls.Add(BaseUrl + file);
+
+            Uri fullUri = new Uri(baseUri, file);
+
+            Urls.Add(fullUri.ToString());
         }
 
         Debug.Log($"Found {Urls.Count} images");

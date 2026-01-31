@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Bootstrapper : MonoBehaviour
 {
-    private static ServiceLocator Locator => ServiceLocator.Instance;
+    private ServiceLocator Locator => ServiceLocator.Instance;
 
 
     private async void Start()
