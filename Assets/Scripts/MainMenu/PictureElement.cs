@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -55,7 +55,7 @@ public class PictureElement : MonoBehaviour
 
         Rect itemRect = new Rect(itemCorners[0], itemCorners[2] - itemCorners[0]);
         Rect viewportRect = new Rect(viewportCorners[0], viewportCorners[2] - viewportCorners[0]);
-
+        
         return itemRect.Overlaps(viewportRect);
     }
 

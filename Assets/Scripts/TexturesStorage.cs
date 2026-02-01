@@ -12,12 +12,12 @@ public static class TexturesStorage
         if (Cache.TryGetValue(url, out var tex))
             return tex;
 
-        using var req = UnityWebRequestTexture.GetTexture(url);
+            using var req = UnityWebRequestTexture.GetTexture(url);
         await req.SendWebRequest();
 
-        tex = DownloadHandlerTexture.GetContent(req);
-        Cache[url] = tex;
+            tex = DownloadHandlerTexture.GetContent(req);
+            Cache[url] = tex;
 
-        return tex;
-    }
+            return tex;
+        }
 }

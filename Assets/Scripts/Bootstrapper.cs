@@ -9,6 +9,9 @@ public class Bootstrapper : MonoBehaviour
 
     private async void Start()
     {
+        Application.targetFrameRate = 60;
+        QualitySettings.vSyncCount = 0;
+
         var linksStorage = new LinksStorage();
         Locator.Add(linksStorage);
     }
