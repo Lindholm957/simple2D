@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
     [SerializeField] private GridLayoutGroup grid;
-    [SerializeField] private Transform content;
+    [SerializeField] private ScrollRect scrollRect;
     [SerializeField] private PictureElement pictureElementPrefab;
 
     private ServiceLocator _locator => ServiceLocator.Instance;
@@ -19,8 +19,8 @@ public class MainMenu : MonoBehaviour
     {
         grid.constraintCount = DeviceInformation.IsTablet() ? 3 : 2;
 
-        for (int i = 0; i < content.childCount; i++)
-            _elementsBuffer.Add(content.GetChild(i).GetComponent<PictureElement>());
+        for (int i = 0; i < scrollRect.content.childCount; i++)
+            _elementsBuffer.Add(scrollRect.content.GetChild(i).GetComponent<PictureElement>());
     }
 
     private async void Start()
@@ -39,13 +39,17 @@ public class MainMenu : MonoBehaviour
 
     private void InstantiateElement(int index)
     {
-        var pictureElement = Instantiate(pictureElementPrefab, content);
+        var pictureElement = Instantiate(pictureElementPrefab, scrollRect.content);
         InitializeElement(pictureElement, index);
     }
 
     private void InitializeElement(PictureElement element, int index)
     {
-        element.Initialize(() => Debug.Log($"Clicked on picture with URL: {_linksStorage.Urls[index]}"), _linksStorage.Urls[index]);
+        element.Initialize(
+            () => Debug.Log($"Clicked on picture with URL: {_linksStorage.Urls[index]}"),
+            _linksStorage.Urls[index],
+            scrollRect.viewport
+        );
         element.SetPremiumTagState((index + 1) % 4 == 0);
         _pictureElements.Add(element);
     }

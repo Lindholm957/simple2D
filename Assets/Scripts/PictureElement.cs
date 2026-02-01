@@ -9,36 +9,77 @@ public class PictureElement : MonoBehaviour
     [SerializeField] private GameObject premiumTag;
     [SerializeField] private GameObject loaderImage;
 
-    public bool IsPremium => premiumTag.activeSelf;
+    private RectTransform _rect;
+    private RectTransform _viewport;
 
     private string _url;
+    private bool _isLoaded;
+    private bool _isLoading;
+    private bool _isInitialized;
 
-    public void Initialize(Action onClickAction, string url)
+    public void Initialize(Action onClickAction, string url, RectTransform viewport)
     {
         button.onClick.AddListener(() => onClickAction?.Invoke());
         _url = url;
-        ShowImage();
+        _viewport = viewport;
+        _rect = transform as RectTransform;
+
+        loaderImage.SetActive(true);
+        _isInitialized = true;
+    }
+
+    private void Update()
+    {
+        if (_isLoaded || _isLoading || !_isInitialized)
+            return;
+
+        if (IsVisible())
+            LoadImage();
+    }
+
+    private bool IsVisible()
+    {
+        Vector3[] itemCorners = new Vector3[4];
+        Vector3[] viewportCorners = new Vector3[4];
+
+        _rect.GetWorldCorners(itemCorners);
+        _viewport.GetWorldCorners(viewportCorners);
+
+        Rect itemRect = new Rect(itemCorners[0], itemCorners[2] - itemCorners[0]);
+        Rect viewportRect = new Rect(viewportCorners[0], viewportCorners[2] - viewportCorners[0]);
+
+        return itemRect.Overlaps(viewportRect);
+    }
+
+    private async void LoadImage()
+    {
+        if (TexturesStorage.Cache.ContainsKey(_url))
+        {
+            ApplyTexture(TexturesStorage.Cache[_url]);
+            return;
+        }
+
+        _isLoading = true;
+        Texture2D tex = await TexturesStorage.Load(_url);
+        ApplyTexture(tex);
+    }
+
+    private void ApplyTexture(Texture2D tex)
+    {
+        _isLoaded = true;
+        _isLoading = false;
+
+        image.sprite = Sprite.Create(
+            tex,
+            new Rect(0, 0, tex.width, tex.height),
+            new Vector2(0.5f, 0.5f)
+        );
+
+        loaderImage.SetActive(false);
     }
 
     public void SetPremiumTagState(bool isActive)
     {
         premiumTag.SetActive(isActive);
-    }
-
-    public void ShowImage()
-    {
-        if (TexturesStorage.Cache.ContainsKey(_url))
-            return;
-        else
-            LoadImage();
-    }
-
-    private async void LoadImage()
-    {
-        Debug.Log("скачиваем");
-        Texture2D tex = await TexturesStorage.Load(_url);
-        Debug.Log("скачал");
-        image.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));
-        loaderImage.SetActive(false);
     }
 }
