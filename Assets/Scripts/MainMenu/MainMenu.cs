@@ -14,8 +14,9 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private List<Category> categories;
 
     [Header("Popups")]
-    [SerializeField] private PreviewPopup previewPopup;
-    [SerializeField] private PremiumPopup premiumPopup;
+    [SerializeField] private Transform popupsParent;
+    [SerializeField] private PreviewPopup previewPopupPrefab;
+    [SerializeField] private PremiumPopup premiumPopupPrefab;
 
 
     private readonly List<PictureElement> _pictureElements = new();
@@ -88,7 +89,10 @@ public class MainMenu : MonoBehaviour
     {
         if (element.IsPremium)
         {
-            premiumPopup.Show();
+            var premiumPopUp = Instantiate(
+                premiumPopupPrefab,
+                popupsParent
+            );
             return;
         }
 
@@ -98,7 +102,11 @@ public class MainMenu : MonoBehaviour
             return;
         }
 
-        previewPopup.Show(element.Sprite);
+        var previewPopUp = Instantiate(
+            previewPopupPrefab,
+            popupsParent
+        );
+        previewPopUp.Show(element.Sprite);
     }
 
     private void ApplyCategory()

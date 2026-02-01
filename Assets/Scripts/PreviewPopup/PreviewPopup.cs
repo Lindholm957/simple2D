@@ -8,18 +8,16 @@ public class PreviewPopup : MonoBehaviour
 
     private void Awake()
     {
-        backButton.onClick.AddListener(Hide);
-        gameObject.SetActive(false);
+        backButton.onClick.AddListener(Close);
     }
 
     public void Show(Sprite sprite)
     {
         image.sprite = sprite;
-        gameObject.SetActive(true);
     }
 
-    private void Hide()
+    private void Close()
     {
-        gameObject.SetActive(false);
+        Destroy(gameObject);
     }
 }
