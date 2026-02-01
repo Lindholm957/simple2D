@@ -2,59 +2,66 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
+using System;
 
 [RequireComponent(typeof(Toggle))]
 public class Category : MonoBehaviour
 {
+    [SerializeField] private CategoryType categoryType;
     [SerializeField] private TMP_Text label;
     [SerializeField] private Image underlineImage;
     [SerializeField] private Color activeTextColor;
-    [Space]
-    [SerializeField] private float animationDuration = 1f;
+    [SerializeField] private float animationDuration = 0.25f;
 
-    private Color _inactiveTextColor;
+    public CategoryType Type => categoryType;
+    public event Action<CategoryType> Selected;
+
     private Toggle _toggle;
+    private Color _inactiveTextColor = Color.black;
 
     private void Awake()
     {
         _toggle = GetComponent<Toggle>();
+
         _toggle.onValueChanged.AddListener(OnToggleValueChanged);
-        _inactiveTextColor = label.color;
     }
 
     private void OnToggleValueChanged(bool isOn)
     {
-        var targetColor = isOn ? activeTextColor : _inactiveTextColor;
-        var targetAlpha = isOn ? 1f : 0f;
+        if (isOn)
+            Selected?.Invoke(categoryType);
 
-        AnimateTransition(targetColor, targetAlpha).Forget();
+        Animate(isOn).Forget();
     }
 
-    private async UniTask AnimateTransition(Color newColor, float targetAlpha)
+    private async UniTask Animate(bool isOn)
     {
         float time = 0f;
 
         Color startColor = label.color;
+        Color targetColor = isOn ? activeTextColor : _inactiveTextColor;
+
         float startAlpha = underlineImage.color.a;
+        float targetAlpha = isOn ? 1f : 0f;
 
         while (time < animationDuration)
         {
             time += Time.deltaTime;
             float t = time / animationDuration;
 
-            label.color = Color.Lerp(startColor, newColor, t);
-            SetImageAlpha(Mathf.Lerp(startAlpha, targetAlpha, t));
+            label.color = Color.Lerp(startColor, targetColor, t);
+            SetUnderlineAlpha(Mathf.Lerp(startAlpha, targetAlpha, t));
 
-            await UniTask.Yield(PlayerLoopTiming.Update);
+            await UniTask.Yield();
         }
 
-        label.color = newColor;
-        SetImageAlpha(targetAlpha);
+        label.color = targetColor;
+        SetUnderlineAlpha(targetAlpha);
     }
 
-    private void SetImageAlpha(float alpha)
+    private void SetUnderlineAlpha(float alpha)
     {
-        Color c = underlineImage.color;
+        var c = underlineImage.color;
         c.a = alpha;
         underlineImage.color = c;
     }
