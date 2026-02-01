@@ -13,6 +13,11 @@ public class MainMenu : MonoBehaviour
     [Header("Categories")]
     [SerializeField] private List<Category> categories;
 
+    [Header("Popups")]
+    [SerializeField] private PreviewPopup previewPopup;
+    [SerializeField] private PremiumPopup premiumPopup;
+
+
     private readonly List<PictureElement> _pictureElements = new();
     private readonly List<PictureElement> _elementsBuffer = new();
 
@@ -71,12 +76,29 @@ public class MainMenu : MonoBehaviour
     private void InitializeElement(PictureElement element, int index)
     {
         element.Initialize(
-            () => Debug.Log($"Clicked on {_linksStorage.Urls[index]}"),
             _linksStorage.Urls[index],
             scrollRect.viewport
         );
 
+        element.Clicked += OnElementClicked;
         element.SetPremiumTagState((index + 1) % 4 == 0);
+    }
+
+    private void OnElementClicked(PictureElement element)
+    {
+        if (element.IsPremium)
+        {
+            premiumPopup.Show();
+            return;
+        }
+
+        if (!element.IsLoaded)
+        {
+            Debug.Log("Image not loaded yet");
+            return;
+        }
+
+        previewPopup.Show(element.Sprite);
     }
 
     private void ApplyCategory()

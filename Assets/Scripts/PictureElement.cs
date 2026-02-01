@@ -17,9 +17,17 @@ public class PictureElement : MonoBehaviour
     private bool _isLoading;
     private bool _isInitialized;
 
-    public void Initialize(Action onClickAction, string url, RectTransform viewport)
+    public bool IsPremium => premiumTag.activeSelf;
+    public Sprite Sprite => image.sprite;
+    public bool IsLoaded => _isLoaded;
+
+    public event Action<PictureElement> Clicked;
+
+    public void Initialize(string url, RectTransform viewport)
     {
-        button.onClick.AddListener(() => onClickAction?.Invoke());
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(() => Clicked?.Invoke(this));
+
         _url = url;
         _viewport = viewport;
         _rect = transform as RectTransform;
